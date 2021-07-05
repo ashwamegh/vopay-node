@@ -2,13 +2,12 @@
 	"name": "vopay-node",
 	"version": "1.0.0",
 	"description": "An unofficial library that wraps VoPay REST API(s) to be used in node.js projects",
-	"main": "dist/vopay",
-	"typings": "dist/vopay",
+	"main": "dist/index",
+	"types": "dist/index.d.ts",
 	"scripts": {
 		"clean": "rm -rf dist && mkdir dist",
-		"cp-ts": "cp lib/vopay.d.ts dist/",
 		"build:commonjs": "tsc",
-		"build": "npm run clean && npm run build:commonjs && npm run cp-ts",
+		"build": "npm run clean && npm run build:commonjs",
 		"debug": "node examples/index.js",
 		"test": "npm run build && mocha --require babel-register --recursive --full-trace"
 	},
@@ -40,6 +39,8 @@
 	},
 	"dependencies": {
 		"axios": "^0.21.1",
-		"querystring": "^0.2.0"
+		"date-fns": "^2.22.1",
+		"querystring": "^0.2.0",
+		"sha1": "^1.1.1"
 	}
 }
