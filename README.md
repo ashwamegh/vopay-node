@@ -37,6 +37,7 @@ Things you will need for the instance:
 | ApiKey |
 | ApiSecret |
 
+<br/>
 
 ```javascript
 const VoPay = require('vopay-node')
