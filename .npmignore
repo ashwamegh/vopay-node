@@ -8,10 +8,12 @@
 .babelrc
 .eslintrc
 .travis.yml
+.prettierrc.yaml
 rollup.config.js
 tsconfig.json
 npm-debug.log
 yarn-error.log
+yarn.lock
 lib
 test
 examples
