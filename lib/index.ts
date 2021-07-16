@@ -7,12 +7,14 @@ const pkg = require('./../package.json')
 import API from './api'
 
 import Iq11 from './Iq11'
+import Account from './account'
 
 class VoPay {
     static VERSION = pkg.version
     Signature: string
     api: InstanceType<typeof API>
     iq11
+	account
 
     constructor(
         options: { ApiKey: string; ApiSecret: string; AccountID: string } = {
@@ -44,6 +46,7 @@ class VoPay {
 
     addResources() {
         this.iq11 = Iq11(this.api)
+		this.account = Account(this.api)
     }
 }
 

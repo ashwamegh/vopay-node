@@ -3,8 +3,6 @@
 
 <img src="https://vopay.com/wp-content/themes/vopay2019/library/images/V-Vopay.svg" alt="VoPay Logo" width="150" />
 
-<br/>
-
 > This is an unofficial library to leverage VoPay REST API(s) for payment solutions.
 
 [![npm](https://img.shields.io/npm/v/vopay-node.svg?maxAge=2592000?style=flat-square)](https://www.npmjs.com/package/vopay-node)
@@ -13,6 +11,7 @@
 - [Usage](#usage)
 - [API Reference](#api-reference)
   - [IQ11](#iq11)
+  - [Account](#account)
 - [Development](#development)
 
 ## Installation
@@ -95,7 +94,8 @@ All methods return a Promise.
 <br/>
 
 ```javascript
-await VoPayClient.iq11.generateEmbedURL({
+// Check Official Docs for more fields
+const { EmbedURL, Success, ErrorMessage } = await VoPayClient.iq11.generateEmbedURL({
 	RedirectURL: "https://redirect.com/page?Token=1234"
 })
 ```
@@ -107,7 +107,8 @@ await VoPayClient.iq11.generateEmbedURL({
 <br/>
 
 ```javascript
-await VoPayClient.iq11.tokenInfo({
+// Check Official Docs for more fields in response
+const { MaskedAccount, Success, ErrorMessage, BankName } = await VoPayClient.iq11.tokenInfo({
 	Token: "IQ11_TOKEN"
 })
 ```
@@ -118,10 +119,188 @@ await VoPayClient.iq11.tokenInfo({
 <br/>
 
 ```javascript
-await VoPayClient.iq11.tokenize()
+// Check Official Docs for more fields in response
+const { Token, Success, ErrorMessage } = await VoPayClient.iq11.tokenize()
 ```
 
 <br/>
+
+
+<a id="account" />
+
+### Account - [Official Docs](https://docs.vopay.com/vopay-api-reference/ref#tag-account-methods)
+
+<br/>
+
+#### **Get Account Balance** - [Official Docs](https://docs.vopay.com/vopay-api-reference/ref#accountbalanceget)
+<br/>
+
+```javascript
+// Check Official Docs for more fields in response
+const { AccountBalance, Success, ErrorMessage } = await VoPayClient.account.balance({
+	Currency: "{Currency}"
+})
+```
+
+<br/>
+
+#### **Get Account Transactions** - [Official Docs](https://docs.vopay.com/vopay-api-reference/ref#accounttransactionsget)
+<br/>
+
+```javascript
+// Check Official Docs for more fields in response
+const { Transactions, Success, ErrorMessage, NumberOfRecords } = await VoPayClient.account.transactions({
+	StartDateTime: "{StartDateTime}",
+	EndDateTime: "{EndDateTime}",
+	Currency: "{Currency}",
+	TransactionType: "{TransactionType}",
+	TransactionID: "{TransactionID}",
+	ClientReferenceNumber: "{ClientReferenceNumber}",
+	ScheduledTransactionID: "{ScheduledTransactionID}",
+	PayLinkStatus: "{PayLinkStatus}"
+})
+```
+
+<br/>
+
+#### **Cancel Transaction** - [Official Docs](https://docs.vopay.com/vopay-api-reference/ref#accounttransactionscancelpost)
+<br/>
+
+```javascript
+// Check Official Docs for more fields in response
+const { Success, ErrorMessage, TransactionID, TransactionStatus } = await VoPayClient.account.cancelTransaction({
+	TransactionID: "{TransactionID}"
+})
+```
+
+<br/>
+
+#### **Set Webhook URL** - [Official Docs](https://docs.vopay.com/vopay-api-reference/ref#accountwebhookurlpost)
+> The purpose of the webhook URL is to notify users of any changes in transaction status.
+
+<br/>
+
+```javascript
+// Check Official Docs for more fields in response
+const { Success, ErrorMessage } = await VoPayClient.account.setWebhookURL({
+	WebHookUrl: "{WebHookUrl}",
+	Disabled: "{Disabled}"
+})
+```
+
+<br/>
+
+#### **Get Webhook URL** - [Official Docs](https://docs.vopay.com/vopay-api-reference/ref#accountwebhookurlinfoget)
+
+<br/>
+
+```javascript
+// Check Official Docs for more fields in response
+const { Success, ErrorMessage, WebHookURL } = await VoPayClient.account.getWebhookURL()
+```
+
+<br/>
+
+#### **Test Webhook URL** - [Official Docs](https://docs.vopay.com/vopay-api-reference/ref#accountwebhookurltestget)
+
+<br/>
+
+```javascript
+// Check Official Docs for more fields in response
+const { Success, ErrorMessage } = await VoPayClient.account.testWebhookURL()
+```
+
+<br/>
+
+#### **Transfer funds to another VoPay Account** - [Official Docs](https://docs.vopay.com/vopay-api-reference/ref#accounttransfertopost)
+> This method allows you to transfer funds between VoPay accounts.
+<br/>
+
+```javascript
+// Check Official Docs for more fields in response
+const { Success, ErrorMessage, TransactionID } = await VoPayClient.account.transferAccountFundsTo({
+	Amount: "{Amount}",
+	Currency: "{Currency}",
+	RecipientAccountID: "{RecipientAccountID}",
+	ClientReferenceNumber: "{ClientReferenceNumber}",
+	Notes: "{Notes}",
+	ParentTransactionID: "{ParentTransactionID}",
+	IdempotencyKey: "{IdempotencyKey}"
+})
+```
+
+<br/>
+
+#### **Transfer funds from another VoPay Account to your VoPay Account** - [Official Docs](https://docs.vopay.com/vopay-api-reference/ref#accounttransferfrompost)
+> This method allows you to transfer funds from a pre-authorized VoPay account to your VoPay account.
+<br/>
+
+```javascript
+// Check Official Docs for more fields in response
+const { Success, ErrorMessage, TransactionID } = await VoPayClient.account.transferAccountFundsFrom({
+	Amount: "{Amount}",
+	Currency: "{Currency}",
+	DebitorAccountID: "{DebitorAccountID}",
+	ClientReferenceNumber: "{ClientReferenceNumber}",
+	Notes: "{Notes}",
+	IdempotencyKey: "{IdempotencyKey}"
+})
+```
+
+<br/>
+
+#### **Set Up Auto Balance Transfer** - [Official Docs](https://docs.vopay.com/vopay-api-reference/ref#accountautobalancetransferpost)
+> This method allows you to set up an auto-balance transfer from your VoPay account to your linked bank account. The frequency available to set the auto-transfer can be daily, weekly, bi-weekly or monthly.
+<br/>
+
+```javascript
+// Check Official Docs for more fields in response
+const { Success, ErrorMessage } = await VoPayClient.account.setupAutoBalanceTransfer({
+	ScheduleStartDate: "{ScheduleStartDate}",
+	AutoBalanceTransferAmount: "{AutoBalanceTransferAmount}",
+	TypeOfFrequency: "{TypeOfFrequency}",
+	EmailAddress: "{EmailAddress}",
+	FirstName: "{FirstName}",
+	LastName: "{LastName}",
+	CompanyName: "{CompanyName}",
+	Address1: "{Address1}",
+	City: "{City}",
+	Province: "{Province}",
+	Country: "{Country}",
+	PostalCode: "{PostalCode}",
+	AccountNumber: "{AccountNumber}",
+	FinancialInstitutionNumber: "{FinancialInstitutionNumber}",
+	BranchTransitNumber: "{BranchTransitNumber}",
+	FlinksAccountID: "{FlinksAccountID}",
+	FlinksLoginID: "{FlinksLoginID}",
+	Token: "{Token}",
+	PlaidPublicToken: "{PlaidPublicToken}",
+	PlaidAccessToken: "{PlaidAccessToken}",
+	PlaidAccountID: "{PlaidAccountID}",
+	PlaidProcessorToken: "{PlaidProcessorToken}",
+	InveriteRequestGUID: "{InveriteRequestGUID}"
+})
+```
+
+<br/>
+
+#### **Get Auto Balance Transfer Details** - [Official Docs](https://docs.vopay.com/vopay-api-reference/ref#accountautobalancetransferget)
+<br/>
+
+```javascript
+// Check Official Docs for more fields in response
+const { Success, ErrorMessage, AutoBalanceTransferAmount, NameOfFrequency,... } = await VoPayClient.account.getAutoBalanceTransferInfo()
+```
+
+<br/>
+
+#### **Cancel Auto Balance Transfer** - [Official Docs](https://docs.vopay.com/vopay-api-reference/ref#accountautobalancetransfercancelpost)
+<br/>
+
+```javascript
+// Check Official Docs for more fields in response
+const { Success, ErrorMessage, Status } = await VoPayClient.account.cancelAutoBalanceTransfer()
+```
 
 ## Development
 
