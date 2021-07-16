@@ -12,6 +12,7 @@
 - [API Reference](#api-reference)
   - [IQ11](#iq11)
   - [Account](#account)
+  - [EFT](#eft)
 - [Development](#development)
 
 ## Installation
