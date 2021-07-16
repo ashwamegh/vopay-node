@@ -227,3 +227,97 @@ export interface AccountAutoBalanceTransferInfo extends VoPayResponse {
 export interface AutoBalanceTransferCancellationResponse extends VoPayResponse {
 	Status?: string; // Contains the new status of the auto transfer balance
 }
+
+
+//---------------------------------------------------------------------//
+//																	   //
+//																	   //
+//					EFT ENDPOINTS TYPE DEFINITIONS				   	   //
+//																	   //
+//																	   //
+//																	   //
+//---------------------------------------------------------------------//
+
+export interface EFTFundVopayAccountRequest extends VoPayRequest {
+	FirstName?: string; // Customer’s first name
+	LastName?: string; // Customer’s last name
+	CompanyName?: string; // Company’s name
+	DOB?: string; // Date of Birth, in date format YYYY-MM-DD. For example: 1960-01-15
+	PhoneNumber?: string; // Customer’s phone number. (Digits only – no parentheses or dashes allowed.)
+	Address1?: string; // Customer’s address line 1
+	City?: string; // Customer’s city
+	Province?: string; // Customer’s province specified using two character abbreviations (eg. BC, AB)
+	Country?: string; // Customer’s country specified using full country name or ISO 3166-1 alpha-2 code.
+	PostalCode?: string; // Customer’s postal code.
+	AccountNumber: number; // Customer’s bank account number for funds to be debited from.
+	FinancialInstitutionNumber: number; // Three digit institution number for a Canadian bank.
+	BranchTransitNumber: number; // Transit number for the customer’s account.
+	Amount: number; // The amount to debit from the customer’s bank account. Previous versions of the API used DollarAmount as the label for this field.
+	Currency?: string; // 3 character currency code for the currency to fetch transactions for. If this is not specified the transaction will use the account’s local currency. NOTE: Currently the eft/fund API endpoint only supports CAD and USD transactions.
+	ClientReferenceNumber?: string; // An optional reference number to associate with the transaction.
+	KYCPerformed?: boolean; // An optional flag that can be used to communicate to us that you have performed KYC on the customer. If you are subscribed to VoPay’s optional KYC service, excluding this parameter or specifying a value of false will automatically trigger the EBVS and watch list screening.
+	KYCReferenceNumber?: string; // Can be optionally set if you have a reference number which was returned by your KYC provider.
+	EmailAddress?: string; // Customer’s email Address.
+	IPAddress?: string; // Customer’s IP Address.
+	FlinksAccountID?: string; // Used by clients with a Flinks account
+	FlinksLoginID?: string; // Used by clients with a Flinks account
+	Token?: string; // Your iQ11 Token that has been generated using Custom Iframe. See iQ11 API methods.
+	PlaidPublicToken?: string; // Used by clients with a Plaid account
+	PlaidAccessToken?: string; // Used by clients with a Plaid account
+	PlaidAccountID?: string; // Used by clients with a Plaid account
+	PlaidProcessorToken?: string; // Used by clients with a Plaid account. If you use this field PlaidPublicToken, PlaidAccessToken, and PlaidAccountID are not neccesary
+	InveriteRequestGUID?: string; // Used by clients with an Inverite account
+	TransactionLabel?: string; // TransactionLabel overrides originator short name
+	Notes?: string; // An optional note to associate with the transaction.
+	DelayBankingInfo?: boolean; // Option to create a transaction without providing bank information. This option is only available for PayLink functionality.
+	IdempotencyKey?: string; // A unique key which the server can use to recognize and reject subsequent retries of the same request.
+}
+
+export interface EFTFundVopayAccountResponse extends VoPayResponse {
+	TransactionID?: number; // This ID should be saved as it is required in order to look up status information on the transaction.
+}
+
+export interface EFTFundStatusRequest extends VoPayRequest {
+	TransactionID: number; // The unique ID of the transaction
+}
+
+interface EFTSubTransaction {
+	TransactionID?: number; // The unique ID of the transaction
+	TransactionStatus?: string; // A message indicating the current transaction status. Statuses are: pending, in progress, successful, failed, cancelled, waiting on required transaction
+	Timestamp?: string; // The timestamp when the transaction status was last modified
+	TransactionDateTime?: string; // The timestamp when the transaction was created
+	Amount?: number; // The dollar amount of the fund transaction. This is the amount that was withdrawn from the customer’s bank account. Previous versions of the API used DollarAmount as the label for this field.
+	Currency?: string; // The currency for the transaction.
+	HoldAmount?: number; // Indicates if any of the funds that were credited to your account are still being held.
+	LastModified?: string; // This timestamp indicates when the transaction record was last modified. In normal circumstances the transaction record will only be modified when the status of the transaction changes or the HoldAmount is changed.
+	CompanyName?: string; // Company’s name*
+	FirstName?: string; // Customer’s first name*
+	LastName?: string; // Customer’s last name*
+	DOB?: string; // Date of Birth, in date format YYYY-MM-DD. For example: 1960-01-15
+	PhoneNumber?: number; // Customer’s phone number
+	Address1?: string; // Customer’s address line 1
+	Address2?: string; // Customer’s address line 2
+	City?: string; // Customer’s city
+	Province?: string; // Customer’s province specified using two character abbreviation (eg. BC, AB)
+	Country?: string; // Customer’s Country specified using full country name or ISO 3166-1 alpha-2 code
+	PostalCode?: string; // Customer’s postal code.
+	FinancialInstitutionNumber?: string; // Three digit institution number for a Canadian bank.
+	BranchTransitNumber?: string; // Transit number for the customer’s account.
+	AccountNumber?: string; // Customer’s bank account number that funds were debited from.
+	ClientReferenceNumber?: string; // An optional reference number which was associated with the transaction.
+	KYCPerformed?: boolean; // Indicates if you had communicated to us that KYC was performed on the customer, or if KYC was performed by VoPay through the optional KYC service.
+	KYCReferenceNumber?: string; // Contains the optional reference number which was provided when the transaction was created, or the EBVS transaction ID if KYC was performed by VoPay through the optional KYC service.
+	ScheduledTransactionID?: number; // Id of the scheduled transaction. This field only will be displayed if the scheduled transaction exists.
+}
+export interface EFTFundStatusResponse extends VoPayResponse {
+	TransactionID?: number; // The unique ID of the transaction
+	TransactionStatus?: string; // A message indicating the current transaction status. Statuses are: pending, in progress, successful, failed, cancelled
+	Timestamp?: string; // The timestamp when the transaction status was last modified
+	SubTransactions?: [EFTSubTransaction];
+}
+
+export interface EFTFundTransactionInfo extends VoPayRequest, EFTSubTransaction {
+	SubTransactions?: [EFTSubTransaction]; // Collection of sub-transactions related to the main transaction
+	PayLinkDetails: [PayLinkDetail]; // Collection of TransactionInfo data
+}
+

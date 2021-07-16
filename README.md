@@ -302,6 +302,83 @@ const { Success, ErrorMessage, AutoBalanceTransferAmount, NameOfFrequency,... } 
 const { Success, ErrorMessage, Status } = await VoPayClient.account.cancelAutoBalanceTransfer()
 ```
 
+<br/>
+
+<a id="eft" />
+
+### EFT - [Official Docs](https://docs.vopay.com/vopay-api-reference/ref#tag-electronic-funds-transfer-methods)
+
+<br/>
+
+#### **Fund Your Vopay Account** - [Official Docs](https://docs.vopay.com/vopay-api-reference/ref#eftfundpost)
+<br/>
+
+```javascript
+// Check Official Docs for more fields in response
+const { Success, ErrorMessage, TransactionID } = await VoPayClient.eft.fundAccount({
+	FirstName: "{FirstName}",
+	LastName: "{LastName}",
+	CompanyName: "{CompanyName}",
+	DOB: "{DOB}",
+	PhoneNumber: "{PhoneNumber}",
+	Address1: "{Address1}",
+	City: "{City}",
+	Province: "{Province}",
+	Country: "{Country}",
+	PostalCode: "{PostalCode}",
+	AccountNumber: "{AccountNumber}",
+	FinancialInstitutionNumber: "{FinancialInstitutionNumber}",
+	BranchTransitNumber: "{BranchTransitNumber}",
+	Amount: "{Amount}",
+	Currency: "{Currency}",
+	ClientReferenceNumber: "{ClientReferenceNumber}",
+	KYCPerformed: "{KYCPerformed}",
+	KYCReferenceNumber: "{KYCReferenceNumber}",
+	EmailAddress: "{EmailAddress}",
+	IPAddress: "{IPAddress}",
+	FlinksAccountID: "{FlinksAccountID}",
+	FlinksLoginID: "{FlinksLoginID}",
+	Token: "{Token}",
+	PlaidPublicToken: "{PlaidPublicToken}",
+	PlaidAccessToken: "{PlaidAccessToken}",
+	PlaidAccountID: "{PlaidAccountID}",
+	PlaidProcessorToken: "{PlaidProcessorToken}",
+	InveriteRequestGUID: "{InveriteRequestGUID}",
+	TransactionLabel: "{TransactionLabel}",
+	Notes: "{Notes}",
+	DelayBankingInfo: "{DelayBankingInfo}",
+	IdempotencyKey: "{IdempotencyKey}"
+})
+```
+
+<br/>
+
+#### **Get Status of a Fund Transaction** - [Official Docs](https://docs.vopay.com/vopay-api-reference/ref#eftfundstatusget)
+<br/>
+
+```javascript
+// Check Official Docs for more fields in response
+const { Success, ErrorMessage, TransactionStatus, SubTransactions } = await VoPayClient.eft.getFundTransactionStatus({
+	TransactionID: "{TransactionID}"
+})
+```
+
+<br/>
+
+#### **Get Details of a Fund Transaction** - [Official Docs](https://docs.vopay.com/vopay-api-reference/ref#eftfundtransactionget)
+<br/>
+
+```javascript
+// Check Official Docs for more fields in response
+const { Success, ErrorMessage, TransactionStatus, TransactionDateTime, Amount, SubTransactions } = await VoPayClient.eft.getFundTransactionInfo({
+	TransactionID: "{TransactionID}"
+})
+```
+
+<br/>
+
+
+
 ## Development
 
 ```bash
