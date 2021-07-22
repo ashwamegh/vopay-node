@@ -75,13 +75,18 @@ export interface AccountBalanceRequest extends VoPayRequest {
 	Currency?: string; // 3 character currency code for the currency to fetch transactions for. If this is not specified it will be defaulted to the account’s local currency (generally CAD).
 }
 
-export interface AccountBalanceResponse extends VoPayResponse {
+interface AccountBalance {
+	Currency: string; // 3 character currency code for the balance being returned.
 	AccountBalance?: number; // Indicates the total current account balance, including pending funds.
-	PendingFunds: number; // Indicates the portion of the account balance which is pending due to in-progress EFT transactions.
 	SecurityDeposit: number; // Indicates the portion of the account balance which is being held as a security deposit against returned or fraudulent transactions.
 	AvailableImmediately: number; //Indicate the portion of the account balance that is available immediately
+	PendingBalance?: number; // Indicates the portion of the account balance which is pending due to in-progress EFT transactions.
+	AvailableBalance?: number; // Indicates the portion of the account balance which is currently available for use. This is calculated by taking the AccountBalance and subtracting the PendingFunds and SecurityDeposit amounts.
+}
+
+export interface AccountBalanceResponse extends VoPayResponse, AccountBalance {
+	PendingFunds: number; // Indicates the portion of the account balance which is pending due to in-progress EFT transactions.
 	AvailableFunds: number; // Indicates the portion of the account balance which is currently available for use. This is calculated by taking the AccountBalance and subtracting the PendingFunds and SecurityDeposit amounts.
-	Currency: string; // 3 character currency code for the balance being returned.
 }
 
 export interface AccountTransactionsRequest extends VoPayRequest {
@@ -319,5 +324,74 @@ export interface EFTFundStatusResponse extends VoPayResponse {
 export interface EFTFundTransactionInfo extends VoPayRequest, EFTSubTransaction {
 	SubTransactions?: [EFTSubTransaction]; // Collection of sub-transactions related to the main transaction
 	PayLinkDetails: [PayLinkDetail]; // Collection of TransactionInfo data
+}
+
+
+//---------------------------------------------------------------------//
+//																	   //
+//																	   //
+//					PARTNER ENDPOINTS TYPE DEFINITIONS				   //
+//																	   //
+//																	   //
+//																	   //
+//---------------------------------------------------------------------//
+
+export interface NewUserAccountRequest extends VoPayRequest {
+	Name: string; // Name of the person/company you are going to create an account for
+	EmailAddress: string; // Email address of the person/company you are creating an account for
+	ClientAccountEnabled?: boolean; // This is an optional parameter to enable client accounts
+}
+
+export interface NewUserAccountResponse extends VoPayResponse {
+	Message?: string; // Contains a description of the successful message
+	AccountID?: string; // Account Name of the new user created in the endpoint
+	APISharedSecret?: string; // Hashed signature for the request
+	APIKey?: string; // The API key for the sub account
+}
+
+interface ShareHolderAndSigningAuthority {
+	ID?: number; // Shareholder/Signing Authority ID
+	FullName?: string; // Shareholder/Signing Authority First name and last name
+	Ownership?: string; // Percentage of ownership only if is greater than 20%
+	Occupation?: string; // Shareholder’s/Signing Authority's occupation
+	HomeAddress?: string; // Shareholder’s/Signing Authority's home address
+	DateAdded?: string;
+	EmailAddress?: string; // Shareholder’s/Signing Authority's email address
+}
+
+export interface PartnerSubAccount {
+	LegalBusinessName?: string; // Legal Business Name
+	AccountName?: string; // Account name of the account
+	AccountID?: string; // Account ID of the account
+	OrginatorName?: string; // Short Name of the company to identify themselves in the documents
+	OriginatorShortName?: string; // Short Name of the company to identify themselves in the documents (max 15 chars)
+	Email?: string; // Account email address
+	Phone?: number; // Account's phone number
+	Fax?: string; // Account's fax number
+	City?: string; // Account's city
+	Province?: string; // Account's province specified using two character abbreviation (eg. BC, AB)
+	Country?: string; // Account's country specified using full country name or ISO 3166-1 alpha-2 code.
+	PostalCode?: string; // Account's postal code.
+	Address?: string; // Account's address line
+	FlinksUrl?: string; // The Flinks URL
+	WebhookUrl?: string; // URL where the users want us to send their notifications.
+	IsActive?: boolean; // Is the account active
+	GCMEnabled?: boolean; // Permission related to Global cash management
+	EFTCollectEnabled?: boolean; // Permission related to EFT Fund
+	EFTSendEnabled?: boolean; // Permission related to EFT Withdraw
+	USDEFTCollectEnabled?: boolean; // Permission related to EFT Fund using USD currency
+	USDEFTSendEnabled?: boolean; // Permission related to EFT Withdraw using USD currency
+	VisaDirectEnabled?: boolean; // Permission related to Visa Direct
+	InteracMoneyRequestEnabled?: boolean; // Permission related to Interac Money request
+	InteracBulkPayoutEnabled?: boolean; // Permission related to Interac bulk payout
+	PayLinkEnabled?: boolean; // Permission related to Paylink
+	Balances?: [AccountBalance]; // Collection of the balances of the account
+	ShareHolders?: [ShareHolderAndSigningAuthority]; // Collection of Share Holders per account
+	SigningAuthorities?: [ShareHolderAndSigningAuthority]; // Collection of Signing Authorities per account
+}
+
+export interface PartnerAccountLists extends VoPayResponse {
+	PartnerAccount?: string; // Partner account name
+	Accounts?: [PartnerSubAccount]; //Collection of subaccounts per father account
 }
 

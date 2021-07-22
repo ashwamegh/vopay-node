@@ -9,6 +9,7 @@ import API from './api'
 import Iq11 from './Iq11'
 import Account from './account'
 import EFT from './eft'
+import Partner from './partner'
 
 class VoPay {
     static VERSION = pkg.version
@@ -17,6 +18,7 @@ class VoPay {
     iq11
 	account
 	eft
+	partner
 
     constructor(
         options: { ApiKey: string; ApiSecret: string; AccountID: string } = {
@@ -49,7 +51,8 @@ class VoPay {
     addResources() {
         this.iq11 = Iq11(this.api)
 		this.account = Account(this.api)
-		this.eft = EFT(this.api) 
+		this.eft = EFT(this.api)
+		this.partner = Partner(this.api)
     }
 }
 
