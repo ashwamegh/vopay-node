@@ -6,7 +6,7 @@
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"clean": "rm -rf dist && mkdir dist",
-		"build:commonjs": "tsc",
+		"build:commonjs": "tsc && cp lib/index.d.ts dist/index.d.ts",
 		"build": "npm run clean && npm run build:commonjs",
 		"debug": "node examples/index.js",
 		"test": "npm run build && mocha --require babel-register --recursive --full-trace"
