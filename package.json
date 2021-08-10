@@ -1,6 +1,6 @@
 {
 	"name": "vopay-node",
-	"version": "1.1.1",
+	"version": "1.1.2",
 	"description": "An unofficial library that wraps VoPay REST API(s) to be used in node.js projects",
 	"main": "dist/index",
 	"types": "dist/index.d.ts",
