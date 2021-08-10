@@ -8,7 +8,7 @@ import {
 	AccountBalanceRequest,
 	AccountBalanceResponse,
 	AccountCancelTransactionRequest,
-	AccountCancelTransactionResponse,
+	AccountTransactionResponse,
 	AccountWebhookURLRequest,
 	AccountWebhookURLInfo,
 	AccountTransferFundsResponse,
@@ -80,7 +80,7 @@ function Account(api: InstanceType<typeof API>) {
 		 */
 		async cancelTransaction(
 			payload: AccountCancelTransactionRequest
-		): Promise<AccountCancelTransactionResponse> {
+		): Promise<AccountTransactionResponse> {
 			try {
 				const { data } = await api.post({
 					url: '/account/transactions/cancel',
