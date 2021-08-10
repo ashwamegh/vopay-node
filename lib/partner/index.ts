@@ -9,7 +9,7 @@ import {
 	VoPayRequest
 } from '../index.d'
 import API from '../api'
-
+	
 function Partner(api: InstanceType<typeof API>) {
 	return {
 
