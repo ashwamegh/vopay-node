@@ -9,6 +9,45 @@ export interface VoPayResponse {
 	ErrorMessage ?: string; // Contains a description of the error if the request failed
 }
 
+export interface VoPayProfileInfo {
+	FirstName?: string; // Recipient’s first name
+	LastName?: string; // Recipient’s last name
+	EmailAddress?: string; // Recipient’s email address.
+	CompanyName?: string; // Company’s name
+	DOB?: string; // Date of Birth, in date format YYYY-MM-DD. For example: 1960-01-15
+	PhoneNumber?: string; // Recipient’s phone number. (Digits only – no parentheses or dashes allowed.)
+	Address1?: string; // Recipient’s address line 1
+	Address2?: string; // Customer’s address line 2
+	City?: string; // Recipient’s city
+	Province?: string; // Recipient’s province specified using two character abbreviation (eg. BC, AB)
+	Country?: string; // Recipient’s country specified using full country name or ISO 3166-1 alpha-2 code.
+	PostalCode?: string; // Recipient’s postal code.
+	IPAddress?: string; // Recipient’s IP Address.
+}
+
+export interface VoPayBankDetails {
+	AccountHolderName ?: string; // String that defines the account holder name.
+	AccountNumber?: string; // Recipient’s bank account number. This is the account that funds will be deposited into.
+	FinancialInstitutionNumber?: string; // Canadian banks. Three digit institution number.
+	BranchTransitNumber?: string; // Canadian banks. Transit number for the Recipient’s account.
+	IBAN?: string; // International Bank Account Number
+	ABARoutingNumber?: string; // United State banks. ABA routing transit number
+	SortCode?: string; // UK banks. Six digit bank identification number.
+	Currency?: string; // 3 character currency code for the currency to fetch transactions for. If this is not specified the transaction will use the account’s local currency. NOTE: Currently the eft/withdraw API endpoint only supports CAD and USD transactions
+}
+
+export interface VoPayThirdPartyDetails {
+	FlinksAccountID?: string; // Used by clients with a Flinks account
+	FlinksLoginID?: string; // Used by clients with a Flinks account
+	Token?: string; // Your iQ11 Token that has been generated using Custom Iframe. See iQ11 API Endpoints.
+	PlaidPublicToken?: string; // Used by clients with a Plaid account
+	PlaidAccessToken?: string; // Used by clients with a Plaid account
+	PlaidAccountID?: string; // Used by clients with a Plaid account
+	PlaidProcessorToken?: string; // Used by clients with a Plaid account. If you use this field PlaidPublicToken, PlaidAccessToken, and PlaidAccountID are not neccesary
+	InveriteRequestGUID?: string; // Used by clients with an Inverite account
+}
+
+
 //---------------------------------------------------------------------//
 //																	   //
 //																	   //
@@ -47,14 +86,7 @@ export interface TokenInfoResponse extends VoPayResponse {
 	BankName ?: string; // Name of a Canadian Bank.
 }
 
-export interface TokenizeRequest extends VoPayRequest {
-	AccountHolderName ?: string; // String that defines the account holder name.
-	AccountNumber ?: string; // Customer’s bank account number for funds to be debited from.
-	FinancialInstitutionNumber ?: string; // Three digit institution number for a Canadian bank.
-	BranchTransitNumber ?: string; // Transit number for the customer’s account.
-	IBAN ?: string; // International Bank Account Number
-	ABARoutingNumber ?: string; // United State banks. ABA routing transit number
-	SortCode ?: string; // UK banks. Six digit bank identification number.
+export interface TokenizeRequest extends VoPayRequest, VoPayBankDetails {
 }
 
 export interface TokenizeResponse extends VoPayResponse {
@@ -116,10 +148,12 @@ interface TransactionInfo {
 	TransactionID?: number; // Unique ID for the Transaction
 	TransactionDateTime?: string; // The timestamp on which the transaction occurred.
 	TransactionType?: string; // Specifies the type of transaction, for example “EFT Funding”, “EFT Withdrawal”, “Fee”.
+	TransactionStatus?: string; // A message indicating the current transaction status. Statuses are: pending, in progress, successful, failed, cancelled
 	Notes?: string; // If applicable, notes giving context to the transaction.
 	DebitAmount?: number; // The dollar amount by which this transaction debited funds from your account balance. If DebitAmountis set, CreditAmount will be null.
 	CreditAmount?: number; // The dollar amount by which this transaction credited funds to your account balance. If CreditAmount is set, DebitAmount will be null.
 	Currency?: string; // 3 character currency code.
+	Amount?: number;// The dollar amount of the withdraw transaction. This is the amount to be deposited into the recipient’s bank account. Previous versions of the API used DollarAmount as the label for this field.
 	HoldAmount?: number; // The dollar amount of the funds from this transaction which are temporarily on hold. This is only applicable for transactions where CreditAmount is set.
 	LastModified?: string; // This timestamp indicates when the transaction record was last modified. In normal circumstances the transaction record will only be modified when the HoldAmount is changed.
 	ParentTransactionID?: string; // If a transaction directly relates to another transaction, this value will be set to link the new transaction to its parent. For example if an EFT comes back with insufficient funds a new transaction will be created referencing the original transaction as its parent.
@@ -127,6 +161,11 @@ interface TransactionInfo {
 	ClientReferenceNumber?: string; // The optional reference number which was set when the transaction was created.
 	ScheduledTransactionID?: number; // ID of the scheduled transaction
 	PayLinkDetails?: [PayLinkDetail] // Collection of Pay Link Detail data
+
+	// Added for withdraw transactions
+	DollarAmount?: number; // The dollar amount of the failed transaction. Previous versions of the API used DollarAmount as the label for this field.
+	ErrorCode?: string; // Detail error code of the failure.
+	FailureReason?: string; // Detailed description of why the transaction failed. Transactions which have failed cannot be modified, a new fund or withdraw transaction must be created if you wish to re-attempt the transaction.
 }
 
 export interface AccountTransactionsResponse extends VoPayResponse {
@@ -139,7 +178,7 @@ export interface AccountCancelTransactionRequest extends VoPayRequest {
 	TransactionID: number; // The unique ID for the transaction
 }
 
-export interface AccountCancelTransactionResponse extends VoPayResponse {
+export interface AccountTransactionResponse extends VoPayResponse {
 	TransactionID?: number; // The unique ID for the transaction
 	TransactionStatus?: string; // A message indicating the current transaction status - cancelled
 	Timestamp?: string; // The timestamp when the transaction status was last modified
@@ -175,58 +214,18 @@ export interface AccountTransferFundsResponse extends VoPayResponse {
 	TransactionID?: number; // The unique ID of the debit transaction associated with this transfer.
 }
 
-export interface AccountAutoBalanceTransferSetupRequest extends VoPayRequest {
+export interface AccountAutoBalanceTransferSetupRequest extends VoPayRequest, VoPayProfileInfo, VoPayBankDetails, VoPayThirdPartyDetails {
 	ScheduleStartDate: string; // Date from which the schedule will be started
 	AutoBalanceTransferAmount: number; // The minumum amount to have in your VoPay account to initiate this scheduled.
 	TypeOfFrequency: string; // Type of frequency that you which to receive the deposit, the posibles values are: daily, weekly, biweekly, monthly
-	EmailAddress?: string; // Customer’s email Address.
-	FirstName?:	string; // Customer’s first name
-	LastName?: string; // Customer’s last name
-	CompanyName?: string; // Company’s name
-	Address1?: string; // Customer’s address line 1
-	City?: string // Customer’s city
-	Province?: string; // Customer’s province specified using two character abbreviations (eg. BC, AB)
-	Country?: string; // Customer’s country specified using full country name or ISO 3166-1 alpha-2 code.
-	PostalCode?: string; // Customer’s postal code.
-	AccountNumber: number; // Customer’s bank account number for funds to be debited from.
-	FinancialInstitutionNumber: number; // Three digit institution number for a Canadian bank.
-	BranchTransitNumber: number; // Transit number for the customer’s account.
-	FlinksAccountID?: string; // Used by clients with a Flinks account
-	FlinksLoginID?: string; // Used by clients with a Flinks account
-	Token?: string; // Your iQ11 Token that has been generated using Custom Iframe. See iQ11 API methods.
-	PlaidPublicToken?: string; // Used by clients with a Plaid account
-	PlaidAccessToken?: string; // Used by clients with a Plaid account
-	PlaidAccountID?: string; // Used by clients with a Plaid account
-	PlaidProcessorToken?: string; // Used by clients with a Plaid account. If you use this field PlaidPublicToken, PlaidAccessToken, and PlaidAccountID are not neccesary
-	InveriteRequestGUID?: string; // Used by clients with an Inverite account
 }
 
-export interface AccountAutoBalanceTransferInfo extends VoPayResponse {
+export interface AccountAutoBalanceTransferInfo extends VoPayResponse, VoPayProfileInfo, VoPayThirdPartyDetails, VoPayBankDetails {
 	ScheduleStartDate?: string; // Date from which the auto transfer will be started
 	Description?: string; // Description of the of the auto transfer balance
 	NameOfFrequency?: string; //The frequency of the auto transfer (recurring)
 	AutoBalanceTransferAmount?: number; // The minumum amount to have in your VoPay account to start the auto transfer balance
 	Status?: string; // A message indicating the current status of the auto transfer. Statuses are: cancelled, completed, or in progress
-	CompanyName?: string; // Company’s name*
-	FirstName?: string; // Customer’s first name*
-	LastName?: string; // Customer’s last name*
-	EmailAddress?: string; // Recipient’s email address.
-	Address?: string; // Recipient’s address line 1
-	City?: string; // Recipient’s city
-	Province?: string; // Recipient’s province specified using two character abbreviation (eg. BC, AB)
-	Country?: string; // Recipient’s country specified using full country name.
-	PostalCode?: string; // Recipient’s postal code.
-	FlinksAccountID?: string; // Used by clients with a Flinks account
-	FlinksLoginID?: string; // Used by clients with a Flinks account
-	Token?: string; // Your iQ11 Token that has been generated using Custom Iframe. See iQ11 API methods
-	PlaidAccessToken?: string; // Used by clients with a Plaid account
-	PlaidAccountID?: string; // Used by clients with a Plaid account
-	PlaidPublicToken?: string; // Used by clients with a Plaid account
-	PlaidProcessorToken?: string; // Used by clients with a Plaid account. If you use this field PlaidPublicToken, PlaidAccessToken, and PlaidAccountID are not neccesary
-	InveriteRequestGUID?: string; // Used by clients with an Inverite account
-	AccountNumber?: string; // Recipient’s bank account number that funds were deposited to.
-	FinancialInstitutionNumber?: string; // Three digit institution number for a Canadian bank.
-	BranchTransitNumber?: string; // Transit number for the customer’s account.
 }
 
 export interface AutoBalanceTransferCancellationResponse extends VoPayResponse {
@@ -243,17 +242,7 @@ export interface AutoBalanceTransferCancellationResponse extends VoPayResponse {
 //																	   //
 //---------------------------------------------------------------------//
 
-export interface EFTFundVopayAccountRequest extends VoPayRequest {
-	FirstName?: string; // Customer’s first name
-	LastName?: string; // Customer’s last name
-	CompanyName?: string; // Company’s name
-	DOB?: string; // Date of Birth, in date format YYYY-MM-DD. For example: 1960-01-15
-	PhoneNumber?: string; // Customer’s phone number. (Digits only – no parentheses or dashes allowed.)
-	Address1?: string; // Customer’s address line 1
-	City?: string; // Customer’s city
-	Province?: string; // Customer’s province specified using two character abbreviations (eg. BC, AB)
-	Country?: string; // Customer’s country specified using full country name or ISO 3166-1 alpha-2 code.
-	PostalCode?: string; // Customer’s postal code.
+export interface EFTFundVopayAccountRequest extends VoPayRequest, VoPayProfileInfo, VoPayThirdPartyDetails {
 	AccountNumber: number; // Customer’s bank account number for funds to be debited from.
 	FinancialInstitutionNumber: number; // Three digit institution number for a Canadian bank.
 	BranchTransitNumber: number; // Transit number for the customer’s account.
@@ -262,23 +251,14 @@ export interface EFTFundVopayAccountRequest extends VoPayRequest {
 	ClientReferenceNumber?: string; // An optional reference number to associate with the transaction.
 	KYCPerformed?: boolean; // An optional flag that can be used to communicate to us that you have performed KYC on the customer. If you are subscribed to VoPay’s optional KYC service, excluding this parameter or specifying a value of false will automatically trigger the EBVS and watch list screening.
 	KYCReferenceNumber?: string; // Can be optionally set if you have a reference number which was returned by your KYC provider.
-	EmailAddress?: string; // Customer’s email Address.
 	IPAddress?: string; // Customer’s IP Address.
-	FlinksAccountID?: string; // Used by clients with a Flinks account
-	FlinksLoginID?: string; // Used by clients with a Flinks account
-	Token?: string; // Your iQ11 Token that has been generated using Custom Iframe. See iQ11 API methods.
-	PlaidPublicToken?: string; // Used by clients with a Plaid account
-	PlaidAccessToken?: string; // Used by clients with a Plaid account
-	PlaidAccountID?: string; // Used by clients with a Plaid account
-	PlaidProcessorToken?: string; // Used by clients with a Plaid account. If you use this field PlaidPublicToken, PlaidAccessToken, and PlaidAccountID are not neccesary
-	InveriteRequestGUID?: string; // Used by clients with an Inverite account
 	TransactionLabel?: string; // TransactionLabel overrides originator short name
 	Notes?: string; // An optional note to associate with the transaction.
 	DelayBankingInfo?: boolean; // Option to create a transaction without providing bank information. This option is only available for PayLink functionality.
 	IdempotencyKey?: string; // A unique key which the server can use to recognize and reject subsequent retries of the same request.
 }
 
-export interface EFTFundVopayAccountResponse extends VoPayResponse {
+export interface EFTVopayTransactionResponse extends VoPayResponse {
 	TransactionID?: number; // This ID should be saved as it is required in order to look up status information on the transaction.
 }
 
@@ -286,7 +266,7 @@ export interface EFTFundStatusRequest extends VoPayRequest {
 	TransactionID: number; // The unique ID of the transaction
 }
 
-interface EFTSubTransaction {
+interface EFTSubTransaction extends VoPayProfileInfo {
 	TransactionID?: number; // The unique ID of the transaction
 	TransactionStatus?: string; // A message indicating the current transaction status. Statuses are: pending, in progress, successful, failed, cancelled, waiting on required transaction
 	Timestamp?: string; // The timestamp when the transaction status was last modified
@@ -295,17 +275,6 @@ interface EFTSubTransaction {
 	Currency?: string; // The currency for the transaction.
 	HoldAmount?: number; // Indicates if any of the funds that were credited to your account are still being held.
 	LastModified?: string; // This timestamp indicates when the transaction record was last modified. In normal circumstances the transaction record will only be modified when the status of the transaction changes or the HoldAmount is changed.
-	CompanyName?: string; // Company’s name*
-	FirstName?: string; // Customer’s first name*
-	LastName?: string; // Customer’s last name*
-	DOB?: string; // Date of Birth, in date format YYYY-MM-DD. For example: 1960-01-15
-	PhoneNumber?: number; // Customer’s phone number
-	Address1?: string; // Customer’s address line 1
-	Address2?: string; // Customer’s address line 2
-	City?: string; // Customer’s city
-	Province?: string; // Customer’s province specified using two character abbreviation (eg. BC, AB)
-	Country?: string; // Customer’s Country specified using full country name or ISO 3166-1 alpha-2 code
-	PostalCode?: string; // Customer’s postal code.
 	FinancialInstitutionNumber?: string; // Three digit institution number for a Canadian bank.
 	BranchTransitNumber?: string; // Transit number for the customer’s account.
 	AccountNumber?: string; // Customer’s bank account number that funds were debited from.
@@ -324,6 +293,36 @@ export interface EFTFundStatusResponse extends VoPayResponse {
 export interface EFTFundTransactionInfo extends VoPayRequest, EFTSubTransaction {
 	SubTransactions?: [EFTSubTransaction]; // Collection of sub-transactions related to the main transaction
 	PayLinkDetails: [PayLinkDetail]; // Collection of TransactionInfo data
+}
+
+
+export interface EFTWithdrawRequest extends VoPayRequest, VoPayProfileInfo, VoPayBankDetails, VoPayThirdPartyDetails {
+	ClientAccountID?: string; // Client Account ID
+	Amount: number; // The amount in the specified currency to deposit into the recipient’s bank account. Previous versions of the API used DollarAmount as the label for this field.
+	ClientReferenceNumber?: string; // An optional reference number to associate with the transaction.
+	KYCPerformed?: boolean; // An optional flag that can be used to communicate to us that you have performed KYC on the customer. If you are subscribed to VoPay’s optional KYC service, excluding this parameter or specifying a value of false will automatically trigger the EBVS and watch list screening.
+	KYCReferenceNumber?: string; // Can be optionally set if you have a reference number which was returned by your KYC provider.
+	ParentTransactionID?: string; // The parent transaction where the withdrawal will be linked to, can become a split payment with multiple withdrawals. When funds of the parent transaction have been released the system will generate the distributions of these funds automatically.
+	TransactionLabel?: string; // TransactionLabel overrides originator short name
+	Notes?: string; // An optional note to associate with the transaction.
+	DelayBankingInfo?: boolean; // Option to create a transaction without providing bank information. This option is only available for PayLink functionality.
+	IdempotencyKey?: string; // sA unique key which the server can use to recognize and reject subsequent retries of the same request.
+}
+
+export interface EFTWithdrawTransactionResponse extends VoPayResponse, TransactionInfo, VoPayBankDetails {
+	ClientReferenceNumber?: string; // An optional reference number which was associated with the transaction.
+	KYCPerformed?: string; // Indicates if you had communicated to us that KYC was performed on the recipient, or if KYC was performed by VoPay through the optional KYC service.
+	KYCReferenceNumber?: string; // Contains the optional reference number which was provided when the transaction was created, or the EBVS transaction ID if KYC was performed by VoPay through the optional KYC service.
+}
+
+export interface EFTFailedTransactionsRequest extends VoPayRequest {
+	StartDateTime: string; // Start of date range to query for any failed transactions
+	EndDateTime: string; // End of date range to query for any failed transactions
+}
+
+export interface EFTFailedTransactionsResponse extends VoPayResponse {
+	NumberOfRecords?: number; // Total number of failed transaction records returned
+	FailedTransactions?: [TransactionInfo]; // Collection of TransactionInfo data
 }
 
 

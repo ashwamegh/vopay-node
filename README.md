@@ -10,6 +10,7 @@
 - [Installation](#installation)
 - [Usage](#usage)
 - [API Reference](#api-reference)
+  - [Partner](#partner)
   - [IQ11](#iq11)
   - [Account](#account)
   - [EFT](#eft)
@@ -82,6 +83,42 @@ const loadEmbedUrl = async () => {
 All methods return a Promise.
 
 > **In cases where you are needed to provide `AccountID`, `Key` and `Signature`. you can avoid adding that, since the library instance is already having them after you initialized it.**
+
+<br/>
+
+<a id="partner" />
+
+### Partner - [Official Docs](https://docs.vopay.com/vopay-api-reference/ref#tag-partner-endpoints)
+
+<br/>
+
+#### **Create User Account** - [Official Docs](https://docs.vopay.com/vopay-api-reference/ref#accountpost)
+<br/>
+
+> This endpoint is used to create a VoPay account. You will need to sign-up as a partner account in order to use this endpoint and start creating VoPay accounts for your users.
+
+> This Endpoint does not mark the account as active, you will need to submit the rest of the required information in the POST /account/submit-extended-info endpoint
+
+```javascript
+// Check Official Docs for more fields
+const { Success, ErrorMessage, AccountID, APISharedSecret, APIKey } = await VoPayClient.partner.createUserAccount({
+	Name: "{Name}",
+  	ClientAccountEnabled: "{ClientAccountEnabled}",
+  	EmailAddress: "{EmailAddress}",
+})
+```
+
+<br/>
+
+#### **Get a list of User Accounts** - [Official Docs](https://docs.vopay.com/vopay-api-reference/ref#accountget)
+<br/>
+
+> This endpoint is used to get a list of accounts created using a partner account. It will return the accounts data including shareholder, signing authority and balance information
+
+```javascript
+// Check Official Docs for more fields
+const { Success, ErrorMessage, PartnerAccount, Accounts } = await VoPayClient.partner.accountLists()
+```
 
 <br/>
 
@@ -373,6 +410,98 @@ const { Success, ErrorMessage, TransactionStatus, SubTransactions } = await VoPa
 // Check Official Docs for more fields in response
 const { Success, ErrorMessage, TransactionStatus, TransactionDateTime, Amount, SubTransactions } = await VoPayClient.eft.getFundTransactionInfo({
 	TransactionID: "{TransactionID}"
+})
+```
+
+<br/>
+
+#### **Withdraw funds out of your VoPay account** - [Official Docs](https://docs.vopay.com/vopay-api-reference/ref#eftwithdrawpost)
+> This endpoint is used to take funds out of your VoPay account, and deposit them to the specified recipient’s bank account. In the below endpoint, either CompanyName OR FirstName and LastName must be provided.
+
+> If either Token, Flinks (FlinksAccountID, FlinksLoginID), Inverite (InveriteRequestGUID), or Plaid (PlaidPublicToken/PlaidAccessToken, PlaidAccountID) is provided, then the FinancialInstitutionNumber, BranchTransitNumber, and AccountNumber will not be required.
+
+> If the bank information is provided (FinancialInstitutionNumber, BranchTransitNumber, and AccountNumber), then the Address1, City, Province, Country, and PostalCode are required.
+<br/>
+
+```javascript
+// Check Official Docs for more fields in response
+const { Success, ErrorMessage, TransactionID } = await VoPayClient.eft.withdraw({
+	ClientAccountID: "{ClientAccountID}",
+	FirstName: "{FirstName}",
+	LastName: "{LastName}",
+	CompanyName: "{CompanyName}",
+	DOB: "{DOB}",
+	PhoneNumber: "{PhoneNumber}",
+	Address1: "{Address1}",
+	City: "{City}",
+	Province: "{Province}",
+	Country: "{Country}",
+	PostalCode: "{PostalCode}",
+	AccountNumber: "{AccountNumber}",
+	FinancialInstitutionNumber: "{FinancialInstitutionNumber}",
+	BranchTransitNumber: "{BranchTransitNumber}",
+	IBAN: "{IBAN}",
+	ABARoutingNumber: "{ABARoutingNumber}",
+	SortCode: "{SortCode}",
+	Amount: "{Amount}",
+	Currency: "{Currency}",
+	ClientReferenceNumber: "{ClientReferenceNumber}",
+	KYCPerformed: "{KYCPerformed}",
+	KYCReferenceNumber: "{KYCReferenceNumber}",
+	EmailAddress: "{EmailAddress}",
+	IPAddress: "{IPAddress}",
+	FlinksAccountID: "{FlinksAccountID}",
+	FlinksLoginID: "{FlinksLoginID}",
+	Token: "{Token}",
+	PlaidPublicToken: "{PlaidPublicToken}",
+	PlaidAccessToken: "{PlaidAccessToken}",
+	PlaidAccountID: "{PlaidAccountID}",
+	PlaidProcessorToken: "{PlaidProcessorToken}",
+	InveriteRequestGUID: "{InveriteRequestGUID}",
+	ParentTransactionID: "{ParentTransactionID}",
+	TransactionLabel: "{TransactionLabel}",
+	Notes: "{Notes}",
+	DelayBankingInfo: "{DelayBankingInfo}",
+	IdempotencyKey: "{IdempotencyKey}"
+})
+```
+
+<br/>
+
+
+#### **Get single withdraw transaction info** - [Official Docs](https://docs.vopay.com/vopay-api-reference/ref#eftwithdrawtransactionget)
+> This endpoint is used to look up details on a single withdraw transaction. Withdraw transactions debit funds from your account and deposit them into the customer's account.
+<br/>
+
+```javascript
+// Check Official Docs for more fields in response
+const { Success, ErrorMessage, TransactionID, TransactionStatus, PayLinkDetails } = await VoPayClient.eft.getWithdrawTransactionInfo({
+	TransactionID: "{TransactionID}"
+})
+```
+
+<br/>
+
+#### **Get single withdraw transaction status** - [Official Docs](https://docs.vopay.com/vopay-api-reference/ref#eftwithdrawstatusget)
+<br/>
+
+```javascript
+// Check Official Docs for more fields in response
+const { Success, ErrorMessage, TransactionID, TransactionStatus, Timestamp } = await VoPayClient.eft.getWithdrawTransactionStatus({
+	TransactionID: "{TransactionID}"
+})
+```
+
+<br/>
+
+#### **Get Failed Transactions** - [Official Docs](https://docs.vopay.com/vopay-api-reference/ref#eftfailuresget)
+<br/>
+
+```javascript
+// Check Official Docs for more fields in response
+const { Success, ErrorMessage, NumberOfRecords, FailedTransactions } = await VoPayClient.eft.getFailedTransactions({
+	StartDateTime: "{StartDateTime}",
+	EndDateTime: "{EndDateTime}"
 })
 ```
 
